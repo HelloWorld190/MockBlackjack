@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -82,31 +83,31 @@ public class MainFrame {
         setMoney("0");
         moneyPanel.setLayout(new GridLayout(5,2));
 
-        JLabel tenChip = new JLabel(new ImageIcon("src/main/resources/images/Chips/TEN.png"));
+        JLabel tenChip = new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/TEN.png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
         tenLabel = new JLabel("0", SwingConstants.CENTER);
         tenLabel.setForeground(Color.white);
         tenLabel.setFont(new Font("Arial", Font.PLAIN, 15));
         moneyPanel.add(tenChip); moneyPanel.add(tenLabel);
 
-        JLabel fiftyChip = new JLabel(new ImageIcon("src/main/resources/images/Chips/FIFTY.png"));
+        JLabel fiftyChip = new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/FIFTY.png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
         fiftyLabel = new JLabel("0", SwingConstants.CENTER);
         fiftyLabel.setForeground(Color.white);
         fiftyLabel.setFont(new Font("Arial", Font.PLAIN, 15));
         moneyPanel.add(fiftyChip); moneyPanel.add(fiftyLabel);
 
-        JLabel hundredChip = new JLabel(new ImageIcon("src/main/resources/images/Chips/HUNDRED.png"));
+        JLabel hundredChip = new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/HUNDRED.png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
         hundredLabel = new JLabel("0", SwingConstants.CENTER);
         hundredLabel.setForeground(Color.white);
         hundredLabel.setFont(new Font("Arial", Font.PLAIN, 15));
         moneyPanel.add(hundredChip); moneyPanel.add(hundredLabel);
 
-        JLabel fiveHundredChip = new JLabel(new ImageIcon("src/main/resources/images/Chips/FIVE_HUNDRED.png"));
+        JLabel fiveHundredChip = new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/FIVE_HUNDRED.png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
         fiveHundredLabel = new JLabel("0", SwingConstants.CENTER);
         fiveHundredLabel.setForeground(Color.white);
         fiveHundredLabel.setFont(new Font("Arial", Font.PLAIN, 15));
         moneyPanel.add(fiveHundredChip); moneyPanel.add(fiveHundredLabel);
 
-        JLabel thousandChip = new JLabel(new ImageIcon("src/main/resources/images/Chips/THOUSAND.png"));
+        JLabel thousandChip = new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/THOUSAND.png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
         thousandLabel = new JLabel("0", SwingConstants.CENTER);
         thousandLabel.setForeground(Color.white);
         thousandLabel.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -376,7 +377,7 @@ public class MainFrame {
     public void setWageredChips(ArrayList<Chip> chips) {
         wagerPanel.removeAll();
         for (Chip chip : chips) {
-            wagerPanel.add(new JLabel(new ImageIcon("src/main/resources/images/Chips/"+chip.toString()+".png")));
+            wagerPanel.add(new JLabel(new ImageIcon(new ImageIcon("src/main/resources/images/Chips/"+chip.toString()+".png").getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT))));
         }
     }
 }
