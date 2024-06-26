@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
+
 public class Round {
     int turn = 0;
     Integer wager; ArrayList<Chip> usedChips;
@@ -215,12 +216,15 @@ public class Round {
             }
             switch (selectedAction) {
                 case HIT:
+                    game.frame.alert.setText("     Player Hits!     ");
                     playerHand.add(game.shoe.remove(0));
                     JFrameBoard(PLAYER_CARD);
                     break;
                 case STAND:
+                    game.frame.alert.setText("     Player Stands!     ");
                     return Game.Results.DEALER_TURN;
                 case DOUBLE_DOWN:
+                    game.frame.alert.setText(" Player Doubles Down! ");
                     wager *= 2;
                     game.chips.addAll(usedChips);
                     usedChips = game.bet(wager, null);
@@ -236,6 +240,12 @@ public class Round {
                     if (playerTotal > 21) return Game.Results.PLAYER_BUST;
                     return Game.Results.DEALER_TURN;  
                 case SPLIT:
+                    game.frame.alert.setText("    Player Splits!    ");
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }   
                     int playerTotalHand1 = 0, playerTotalHand2 = 0; 
                     game.bet(wager, null);
                     game.currentRound = new Round(game, dealerHand, playerHand.get(0));
@@ -313,6 +323,12 @@ public class Round {
                         return Game.Results.SPLIT_CONTINUE;
                     }
                 case INSURANCE:
+                    game.frame.alert.setText("Player Takes Insurance!");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     game.frame.alert.setText("Place insurance bet! (Up to $" + Math.round((wager/2)/10)*10 + ")");
                     game.frame.switchSouthPanelState();
                     while (true) {
@@ -344,10 +360,11 @@ public class Round {
     }
 
     public Game.Results dealerTurn() {
+
         // consoleBoard();
         JFrameBoard(DEALER_INIT);
         try {
-            Thread.sleep(2500);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -142,6 +142,7 @@ public class Game {
             switch (currentRound.dealerTurn()) {
                 case DEALER_BLACKJACK:
                     frame.alert.setText("    Dealer BlackJack!    ");
+                    currentRound.insurance = currentRound.insurance != null ? currentRound.insurance : new ArrayList<Chip>();
                     if (!currentRound.insurance.isEmpty()) {
                         try {
                             Thread.sleep(1500);

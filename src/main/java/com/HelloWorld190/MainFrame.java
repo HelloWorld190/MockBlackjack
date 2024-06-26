@@ -246,7 +246,6 @@ public class MainFrame {
         hitButton.setBackground(Color.green);
         hitButton.addActionListener(e -> {
             synchronized (Round.o) {
-                alert.setText("    Player has Hit!    ");
                 game.currentRound.selectedAction = Round.Actions.HIT;
                 Round.o.notify();
             }
@@ -259,7 +258,6 @@ public class MainFrame {
         standButton.setBackground(Color.red);
         standButton.addActionListener(e -> {
             synchronized (Round.o) {
-                alert.setText("    Player Stands!    ");
                 game.currentRound.selectedAction = Round.Actions.STAND;
                 Round.o.notify();
             }
@@ -272,7 +270,6 @@ public class MainFrame {
         doubleButton.setBackground(Color.yellow);
         doubleButton.addActionListener(e -> {
             synchronized (Round.o) {
-                alert.setText(" Player Doubles Down! ");
                 game.currentRound.selectedAction = Round.Actions.DOUBLE_DOWN;
                 Round.o.notify();
             }
@@ -285,7 +282,6 @@ public class MainFrame {
         splitButton.setBackground(Color.blue);
         splitButton.addActionListener(e -> {
             synchronized (Round.o) {
-                alert.setText("    Player Splits!    ");
                 game.currentRound.selectedAction = Round.Actions.SPLIT;
                 Round.o.notify();
             }
@@ -298,7 +294,6 @@ public class MainFrame {
         insuranceButton.setBackground(Color.orange);
         insuranceButton.addActionListener(e -> {
             synchronized (Round.o) {
-                alert.setText("Player Takes Insurance!");
                 game.currentRound.selectedAction = Round.Actions.INSURANCE;
                 Round.o.notify();
             }
