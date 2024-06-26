@@ -61,10 +61,10 @@ public class Round {
     }
 
     public Game.Results playerTurn() {
-        
+        validateShoe(); //Initialize shoe if empty or null
         // consoleBoard();
         game.frame.setChips();
-        JFrameBoard();
+        JFrameBoard(FULL_RELOAD);
 
         // Ask for bet
         // usedChips = getConsoleBet();
@@ -96,22 +96,16 @@ public class Round {
 
         // Player's Actions
         playerActions = new boolean[]{true, true, false, false, false};
-        if (turn == 0) {
-            if (wager <= Chip.sumChipValue(game.chips)) playerActions[2] = true;
-            if (playerHand.get(0).getRank() == playerHand.get(1).getRank() && wager <= Chip.sumChipValue(game.chips)) playerActions[3] = true;
-            if (dealerHand.get(0).getRank() == Card.Rank.ACE) playerActions[4] = true;
-        }
-
+        if (wager <= Chip.sumChipValue(game.chips)) playerActions[2] = true;
+        if (playerHand.get(0).getRank() == playerHand.get(1).getRank() && wager <= Chip.sumChipValue(game.chips)) playerActions[3] = true;
+        if (dealerHand.get(0).getRank() == Card.Rank.ACE) playerActions[4] = true;
+        
+        game.frame.updatePlayerActions(playerActions);
+        JFrameBoard(FULL_RELOAD);
         while (true) {
+            game.frame.alert.setText("     Player's Turn     ");
             validateShoe(); //Initialize shoe if empty or null
             // consoleBoard();
-            JFrameBoard();
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             if (playerTotal == 21) return Game.Results.BLACKJACK;
             if (playerTotal == 11 && playerSoft) return Game.Results.BLACKJACK;
             if (playerTotal > 21) return Game.Results.PLAYER_BUST;
@@ -159,23 +153,37 @@ public class Round {
             switch (selectedAction) {
                 case HIT:
                     playerHand.add(game.shoe.remove(0));
+                    JFrameBoard(PLAYER_CARD);
                     break;
                 case STAND:
                     return Game.Results.DEALER_TURN;
                 case DOUBLE_DOWN:
+                    wager *= 2;
+                    game.chips.addAll(usedChips);
+                    usedChips = game.bet(wager, null);
+
+                    game.frame.setWageredChips(usedChips);
+                    game.frame.setWager(""+wager);
+                    game.frame.setChips();
+
+                    playerHand.add(game.shoe.remove(0));
+                    JFrameBoard(PLAYER_CARD);
+
+                    if (playerTotal == 21 || (playerTotal == 11 && playerSoft)) return Game.Results.BLACKJACK;
+                    if (playerTotal > 21) return Game.Results.PLAYER_BUST;
+                    return Game.Results.DEALER_TURN;  
                 case SPLIT:
                 case INSURANCE:
                     System.out.println("Not implemented yet, sry");
                     break;
-
             }
+            game.frame.updatePlayerActions(new boolean[]{true, true, false, false, false});
         }
     }
 
     public Game.Results dealerTurn() {
-        dealerHand.get(1).isFaceUp = true;
         // consoleBoard();
-        JFrameBoard();
+        JFrameBoard(DEALER_INIT);
         try {
             Thread.sleep(2500);
         } catch (InterruptedException e) {
@@ -185,7 +193,7 @@ public class Round {
         while (dealerTotal < 17) {
             dealerHand.add(game.shoe.remove(0));
             // consoleBoard();
-            JFrameBoard();
+            JFrameBoard(DEALER_CARD);
             try {
                 Thread.sleep(2500);
             } catch (InterruptedException e) {
@@ -202,35 +210,58 @@ public class Round {
         return Game.Results.TIE;
     } 
 
-    private void JFrameBoard() {
+    final int FULL_RELOAD = 0, PLAYER_CARD = 1, DEALER_INIT = 2, DEALER_CARD = 3;
+    private void JFrameBoard(int status) {
         dealerHand = dealerHand == null ? new ArrayList<Card>() : dealerHand;
         playerHand = playerHand == null ? new ArrayList<Card>() : playerHand;
         usedChips = usedChips == null ? new ArrayList<Chip>() : usedChips;
         playerActions = playerActions == null ? new boolean[5] : playerActions;
-        dealerTotal = 0; playerTotal = 0;
-
-        game.frame.playerHand.removeAll(); game.frame.dealerHand.removeAll();
-        for (Card card : dealerHand) {
-            game.frame.addDealerCard(card);
-            if (card.isFaceUp) {
-                dealerTotal += card.getValue();
-                if (card.getRank() == Card.Rank.ACE) dealerSoft = true;
+        if (status == 0) {
+            dealerTotal = 0; playerTotal = 0;
+            game.frame.playerHand.removeAll(); game.frame.dealerHand.removeAll();
+            for (Card card : dealerHand) {
+                game.frame.addDealerCard(card);
+                if (card.isFaceUp) {
+                    dealerTotal += card.getValue();
+                    if (card.getRank() == Card.Rank.ACE) dealerSoft = true;
+                }
+                if (dealerSoft && dealerTotal == 11) game.frame.setDealerTotal("21");
+                else if (dealerSoft) game.frame.setDealerTotal(determineSoft(dealerTotal));
+                else game.frame.setDealerTotal(dealerTotal+"");
             }
+            for (Card card : playerHand) {
+                game.frame.addPlayerCard(card);
+                playerTotal += card.getValue();
+                if (card.getRank() == Card.Rank.ACE) playerSoft = true;
+                if (playerTotal == 21) game.frame.setPlayerTotal("21");
+                else if (playerSoft) game.frame.setPlayerTotal(determineSoft(playerTotal));
+                else game.frame.setPlayerTotal(playerTotal+"");
+            }
+        } else if (status == 1) {
+            game.frame.addPlayerCard(playerHand.get(playerHand.size()-1));
+            playerTotal += playerHand.get(playerHand.size()-1).getValue();
+            if (playerTotal == 21 || (playerTotal == 11 && playerSoft)) game.frame.setPlayerTotal("21");
+            else if (playerSoft) game.frame.setPlayerTotal(determineSoft(playerTotal));
+            else game.frame.setPlayerTotal(playerTotal+"");
+        } else if (status == 2) {
+            game.frame.dealerHand.remove(1);
+            dealerHand.get(1).isFaceUp = true;
+            game.frame.addDealerCard(dealerHand.get(1));
+            dealerTotal += dealerHand.get(1).getValue();
+            if (dealerTotal == 21 || (dealerTotal == 11 && dealerSoft)) game.frame.setDealerTotal("21");
+            else if (dealerSoft) game.frame.setDealerTotal(determineSoft(dealerTotal));
+            else game.frame.setDealerTotal(dealerTotal+"");
+        } else if (status == 3) {
+            game.frame.addDealerCard(dealerHand.get(dealerHand.size()-1));
+            dealerTotal += dealerHand.get(dealerHand.size()-1).getValue();
+            if (dealerTotal == 21 || (dealerTotal == 11 && dealerSoft)) game.frame.setDealerTotal("21");
+            else if (dealerSoft) game.frame.setDealerTotal(determineSoft(dealerTotal));
+            else game.frame.setDealerTotal(dealerTotal+"");
+        } else {
+            throw new IllegalArgumentException("Invalid status");
         }
-        if (dealerSoft) game.frame.setDealerTotal(determineSoft(dealerTotal));
-        else game.frame.setDealerTotal(dealerTotal+"");
-        for (Card card : playerHand) {
-            game.frame.addPlayerCard(card);
-            playerTotal += card.getValue();
-            if (card.getRank() == Card.Rank.ACE) playerSoft = true;
-        }
-        if (playerSoft) game.frame.setPlayerTotal(determineSoft(playerTotal));
-        else game.frame.setPlayerTotal(playerTotal+"");
-        // TODO: Implement later
-        // game.frame.setWager(Chip.sumChipValue(usedChips));
-        // game.frame.setPlayerActions(playerActions);
-        // if (wager != null) game.frame.setWager(Chip.sumChipValue(usedChips));
     }
+    
     @SuppressWarnings("unused")
     private void consoleBoard() {
         dealerHand = dealerHand == null ? new ArrayList<Card>() : dealerHand;

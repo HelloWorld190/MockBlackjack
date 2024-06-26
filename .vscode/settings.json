@@ -2,5 +2,9 @@
     "java.project.sourcePaths": [
         "src/main/java/com/HelloWorld190",
         "src/test/java/com/HelloWorld190"
+    ],
+    "java.project.referencedLibraries": [
+        "lib/jaco-mp3-player-0.9.3.jar",
+        "lib/junit-platform-console-standalone-1.11.0-M2.jar"
     ]
 }

@@ -1,4 +1,5 @@
-
+import jaco.mp3.player.MP3Player;
+import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,9 +50,12 @@ public class Game {
         shoe = Card.makeShoe();
         Collections.shuffle(shoe);
 
-
+        //Create JFrame Application
         frame = new MainFrame(this);
         frame.createFrame();
+
+        //Start music
+        new MP3Player(new File("src/main/resources/audio/CasinoMusic.mp3")).play();
     }
 
     public ArrayList<Chip> bet(int amount, ArrayList<Chip> usedChips) {
@@ -87,21 +91,25 @@ public class Game {
     }
 
     public void start() {
+        frame.switchSouthPanelState();
         while (Chip.sumChipValue(chips) >= 0) {
+        
             frame.wagerPanel.removeAll();
             concatChips();
+            frame.setPlayerTotal("0"); frame.setDealerTotal("0");
+            frame.setWager("0");
+            frame.switchSouthPanelState();
+
             currentRound = new Round(this);
             switch(currentRound.playerTurn()) {
                 case BLACKJACK:
                     frame.alert.setText("      Blackjack!      ");
                     chips.addAll(currentRound.usedChips); chips.addAll(currentRound.usedChips);
                     handleWaitError(1500);
-                    frame.switchSouthPanelState();
                     continue;
                 case PLAYER_BUST:
                     frame.alert.setText("     Player Bust...     ");
                     handleWaitError(1500);
-                    frame.switchSouthPanelState();
                     continue;
                 case DEALER_TURN:
                     handleWaitError(1500);
@@ -140,8 +148,6 @@ public class Game {
                     throw new IllegalArgumentException("Invalid state");
             }
             handleWaitError(2500);
-            frame.setWager("0");
-            frame.switchSouthPanelState();
         }
     }
 

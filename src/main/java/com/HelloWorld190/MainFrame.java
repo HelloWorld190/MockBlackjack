@@ -5,9 +5,15 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.io.File;
+
+import javax.swing.KeyStroke;
 import java.util.ArrayList;
 import java.util.Collections;
+import jaco.mp3.player.MP3Player;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -20,13 +26,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonAreaLayout;
 
 public class MainFrame {
-    static int FRAME_WIDTH = 940, FRAME_HEIGHT = 620;
+    static int FRAME_WIDTH = 940, FRAME_HEIGHT = 650;
     JFrame frame;
     Game game;
     ImprovedJTextField inputField;
     JPanel playerHand, dealerHand, southPanel, wagerPanel, alertPanel, moneyPanel;
     JLabel alert;
     JLabel hundredLabel, fiftyLabel, tenLabel, fiveHundredLabel, thousandLabel;
+    ArrayList<JLabel> titleLabels = new ArrayList<>();
 
     GridBagConstraints c = new GridBagConstraints();
 
@@ -52,12 +59,38 @@ public class MainFrame {
 
         JPanel titlePanel = new JPanel();
         titlePanel.setBackground(darkGreen);
-        JLabel titleLabel = new JLabel("BlackJack");
-        titleLabel.setForeground(Color.yellow);
-        titleLabel.setFont(new Font("SanSerif", Font.BOLD, 75));
-        titlePanel.add(titleLabel);
+        String title = "BlackJack";
+        char[] titleChars = title.toCharArray();
+        for (char c : titleChars) {
+            JLabel titleLabel = new JLabel(c+"");
+            titleLabel.setForeground(Color.yellow);
+            titleLabel.setFont(new Font("SanSerif", Font.BOLD, 75));
+            titleLabels.add(titleLabel);
+            titlePanel.add(titleLabel);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Color[] colors = {Color.yellow, Color.white, Color.green, Color.red, Color.blue, Color.orange, Color.pink, Color.cyan, Color.lightGray};
+                while (true) {
+                    Color c1 = colors[(int)(Math.random()*colors.length)];
+                    Color c2 = colors[(int)(Math.random()*colors.length)];
+                    if (c1 == c2) continue;
+                    for (int i = 0; i < titleLabels.size(); i++) {
+                        titleLabels.get(i).setForeground(c1);
+                        frame.setVisible(true);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        titleLabels.get(i).setForeground(c2);
+                        frame.setVisible(true);
+                    }
+                }
+            }
+        }).start();
         frame.add(titlePanel, BorderLayout.NORTH);
-
 
         JPanel mainAreaPanel = new JPanel();
         mainAreaPanel.setBackground(darkGreen);
@@ -129,17 +162,20 @@ public class MainFrame {
         // }
         statusPanel.add(wagerPanel, BorderLayout.NORTH);
 
-        JPanel alertPanel = new JPanel();
-        alertPanel.setBackground(darkGreen);
-        alertPanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createMatteBorder(2,2,2,2,new Color(50, 1, 19)),
-            "Status:", TitledBorder.LEFT, TitledBorder.TOP, new Font("SanSerif", Font.BOLD, 20), Color.white));
+        // JPanel alertPanel = new JPanel();
+        // alertPanel.setBackground(darkGreen);
         alert = new JLabel("Welcome to BlackJack!");
+        /*alertPanel*/alert.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(2,2,2,2,new Color(50, 1, 19)),
+                BorderFactory.createEmptyBorder(5,5,5,5)
+            ),"Status:", TitledBorder.LEFT, TitledBorder.TOP, new Font("SanSerif", Font.BOLD, 20), Color.white));
         alert.setForeground(Color.yellow);
-        alert.setFont(new Font("Arial", Font.PLAIN, 15));
-        alertPanel.add(alert);
+        alert.setFont(new Font("Arial", Font.PLAIN, 20));
+        alert.setBackground(darkGreen);
+        // alertPanel.add(alert);
 
-        statusPanel.add(alertPanel, BorderLayout.SOUTH);
+        statusPanel.add(alert, BorderLayout.SOUTH);
         
         frame.add(statusPanel, BorderLayout.EAST);
 
@@ -147,14 +183,24 @@ public class MainFrame {
     }
 
     public void addPlayerCard(Card card) {
-        frame.setVisible(false);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        new MP3Player(new File("src/main/resources/audio/DealCard.mp3")).play();
         String filepath = "src/main/resources/images/" + card.getSuit().toString()+"/"+card.getRank().toString()+".png";
         JLabel cardLabel = new JLabel(new ImageIcon(filepath));
         playerHand.add(cardLabel);
         frame.setVisible(true);
     }
     public void addDealerCard(Card card) {
-        frame.setVisible(false);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        new MP3Player(new File("src/main/resources/audio/DealCard.mp3")).play();
         if (card.isFaceUp) {
             String filepath = "src/main/resources/images/" + card.getSuit().toString()+"/"+card.getRank().toString()+".png";
             JLabel cardLabel = new JLabel(new ImageIcon(filepath));
@@ -167,13 +213,13 @@ public class MainFrame {
         frame.setVisible(true);
     }
     public void clearHands() {
-        frame.setVisible(false);
         playerHand.removeAll();
+        setPlayerTotal("0");
         dealerHand.removeAll();
+        setDealerTotal("0");
         frame.setVisible(true);
     }
     public void switchSouthPanelState() {
-        frame.setVisible(false);
         if (southPanelState == SouthPanelState.BETTING) {
             southPanelState = SouthPanelState.PLAYING;
             southPanel.removeAll();
@@ -318,6 +364,14 @@ public class MainFrame {
                 game.currentRound.o.notify();
             }
         });
+        inputField.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"pressed");
+        inputField.getActionMap().put("pressed", new javax.swing.AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("ENTER PRESSED");
+                button.doClick();
+            }
+        });
         southPanel.add(button, c);
 
         JLabel SouthEast = new JLabel(new ImageIcon());
@@ -330,6 +384,32 @@ public class MainFrame {
 
         frame.add(southPanel, BorderLayout.SOUTH);
     }
+
+    public void updatePlayerActions(boolean[] playerActions) {
+        if (playerActions[2]) {
+            southPanel.getComponent(3).setEnabled(true);
+            southPanel.getComponent(3).setBackground(Color.yellow);
+        } else {
+            southPanel.getComponent(3).setEnabled(false);
+            southPanel.getComponent(3).setBackground(Color.gray);
+        }
+        if (playerActions[3]) {
+            southPanel.getComponent(4).setEnabled(true);
+            southPanel.getComponent(4).setBackground(Color.green);
+        } else {
+            southPanel.getComponent(4).setEnabled(false);
+            southPanel.getComponent(4).setBackground(Color.gray);
+        }
+        if (playerActions[4]) {
+            southPanel.getComponent(5).setEnabled(true);
+            southPanel.getComponent(5).setBackground(Color.blue);
+        } else {
+            southPanel.getComponent(5).setEnabled(false);
+            southPanel.getComponent(5).setBackground(Color.gray);
+        }
+        frame.setVisible(true);
+    }
+
     public void setDealerTotal(String t) {
         dealerHand.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createTitledBorder(
