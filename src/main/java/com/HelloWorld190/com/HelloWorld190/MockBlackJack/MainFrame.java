@@ -154,7 +154,7 @@ public class MainFrame {
 
         wagerPanel = new JPanel();
         wagerPanel.setBackground(darkGreen);
-        wagerPanel.setLayout(new GridLayout(3, 5));
+        wagerPanel.setLayout(new GridLayout(4, 5));
         setWager("0");
         // for (int i = 0; i < 9; i++) {
         //     wagerPanel.add(new JLabel(/*new ImageIcon("com/ConsoleBlackJack/images/Chip.png")*/));

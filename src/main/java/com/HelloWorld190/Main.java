@@ -3,7 +3,7 @@ import com.HelloWorld190.MockBlackJack.Game;
 
 public class Main {
     public static void main(String[] args) {
-        Game game = new Game(100,40,10,2,0);
+        Game game = new Game(0,1,1,1,0);
         // MainFrame frame = new MainFrame(game);
         // frame.createFrame();
         // frame.addPlayerCard(new Card(Card.Suit.CLUBS, Card.Rank.ACE));
