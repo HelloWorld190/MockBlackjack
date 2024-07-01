@@ -154,9 +154,8 @@ public class MainFrame {
 
         wagerPanel = new JPanel();
         wagerPanel.setBackground(darkGreen);
+        wagerPanel.setLayout(new GridLayout(5, 5));
         setWager("0");
-        wagerPanel.setLayout(new GridLayout(3,3));
-
         // for (int i = 0; i < 9; i++) {
         //     wagerPanel.add(new JLabel(/*new ImageIcon("com/ConsoleBlackJack/images/Chip.png")*/));
         // }
@@ -178,8 +177,6 @@ public class MainFrame {
         statusPanel.add(alert, BorderLayout.SOUTH);
         
         frame.add(statusPanel, BorderLayout.EAST);
-
-        frame.setVisible(true);
     }
 
     public void addPlayerCard(Card card) {
@@ -259,10 +256,9 @@ public class MainFrame {
         hitButton.setFocusPainted(false);
         hitButton.setBackground(Color.green);
         hitButton.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
-                alert.setText("    Player has Hit!    ");
+            synchronized (Round.o) {
                 game.currentRound.selectedAction = Round.Actions.HIT;
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
 
@@ -272,10 +268,9 @@ public class MainFrame {
         standButton.setFocusPainted(false);
         standButton.setBackground(Color.red);
         standButton.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
-                alert.setText("    Player Stands!    ");
+            synchronized (Round.o) {
                 game.currentRound.selectedAction = Round.Actions.STAND;
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
 
@@ -285,10 +280,9 @@ public class MainFrame {
         doubleButton.setFocusPainted(false);
         doubleButton.setBackground(Color.yellow);
         doubleButton.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
-                alert.setText(" Player Doubles Down! ");
+            synchronized (Round.o) {
                 game.currentRound.selectedAction = Round.Actions.DOUBLE_DOWN;
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
 
@@ -298,10 +292,9 @@ public class MainFrame {
         splitButton.setFocusPainted(false);
         splitButton.setBackground(Color.blue);
         splitButton.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
-                alert.setText("    Player Splits!    ");
+            synchronized (Round.o) {
                 game.currentRound.selectedAction = Round.Actions.SPLIT;
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
 
@@ -311,10 +304,9 @@ public class MainFrame {
         insuranceButton.setFocusPainted(false);
         insuranceButton.setBackground(Color.orange);
         insuranceButton.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
-                alert.setText("Player Takes Insurance!");
+            synchronized (Round.o) {
                 game.currentRound.selectedAction = Round.Actions.INSURANCE;
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
 
@@ -367,9 +359,9 @@ public class MainFrame {
         c.gridx = 2;
         c.gridy = 0;
         button.addActionListener(e -> {
-            synchronized (game.currentRound.o) {
+            synchronized (Round.o) {
                 System.out.println("WINDOWS ACTIVATED");
-                game.currentRound.o.notify();
+                Round.o.notify();
             }
         });
         inputField.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"pressed");
@@ -393,7 +385,9 @@ public class MainFrame {
         frame.add(southPanel, BorderLayout.SOUTH);
     }
 
-    public void updatePlayerActions(boolean[] playerActions) {
+    public void setActionsVisibility(boolean[] playerActions) {
+        playerActions = playerActions == null ? new boolean[]{false, false, false, false, false} : playerActions;
+
         if (playerActions[2]) {
             southPanel.getComponent(3).setEnabled(true);
             southPanel.getComponent(3).setBackground(Color.yellow);
@@ -403,14 +397,14 @@ public class MainFrame {
         }
         if (playerActions[3]) {
             southPanel.getComponent(4).setEnabled(true);
-            southPanel.getComponent(4).setBackground(Color.green);
+            southPanel.getComponent(4).setBackground(Color.blue);
         } else {
             southPanel.getComponent(4).setEnabled(false);
             southPanel.getComponent(4).setBackground(Color.gray);
         }
         if (playerActions[4]) {
             southPanel.getComponent(5).setEnabled(true);
-            southPanel.getComponent(5).setBackground(Color.blue);
+            southPanel.getComponent(5).setBackground(Color.orange);
         } else {
             southPanel.getComponent(5).setEnabled(false);
             southPanel.getComponent(5).setBackground(Color.gray);

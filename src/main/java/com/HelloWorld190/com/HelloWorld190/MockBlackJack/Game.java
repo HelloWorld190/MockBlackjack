@@ -1,13 +1,15 @@
 package com.HelloWorld190.MockBlackJack;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 public class Game {
     private int TEN_CHIP = 0, FIFTY_CHIPS = 0, 
         HUNDRED_CHIPS = 0, FIVE_HUNDRED_CHIPS = 0, THOUSAND_CHIPS = 0;
 
-    public ArrayList<Chip> chips, usedChips = new ArrayList<Chip>();
+    public ArrayList<Chip> chips;
     public ArrayList<Card> shoe;
     public ArrayList<Card> dealerHand, playerHand;
     public int bet;
@@ -19,7 +21,7 @@ public class Game {
     Round currentRound;
 
     public enum Results {
-        BLACKJACK, DEALER_BLACKJACK, PLAYER_BUST, DEALER_BUST, PLAYER_WIN, DEALER_WIN, TIE, DEALER_TURN
+        BLACKJACK, DEALER_BLACKJACK, PLAYER_BUST, DEALER_BUST, PLAYER_WIN, DEALER_WIN, TIE, DEALER_TURN, SPLIT_CONTINUE
     }
 
     Results result;
@@ -91,21 +93,32 @@ public class Game {
 
     public void start() {
         frame.switchSouthPanelState();
-        while (Chip.sumChipValue(chips) >= 0) {
+        frame.frame.setVisible(true);
+        while (Chip.sumChipValue(chips) > 0) {
         
             frame.wagerPanel.removeAll();
             concatChips();
+            frame.dealerHand.removeAll(); frame.playerHand.removeAll();
             frame.setPlayerTotal("0"); frame.setDealerTotal("0");
             frame.setWager("0");
             frame.switchSouthPanelState();
 
+            //Enable this to allow testing
+            // ArrayList<Card> testHandPlayer = new ArrayList<Card>();
+            // testHandPlayer.add(new Card(Card.Suit.HEARTS, Card.Rank.KING));
+            // testHandPlayer.add(new Card(Card.Suit.HEARTS, Card.Rank.ACE));
+            // ArrayList<Card> testHandDealer = new ArrayList<Card>();
+            // testHandDealer.add(new Card(Card.Suit.HEARTS, Card.Rank.KING));
+            // testHandDealer.add(new Card(Card.Suit.HEARTS, Card.Rank.KING));
+            // currentRound = new Round(this, testHandDealer, testHandPlayer);
+
+            //Disable this to allow testing
             currentRound = new Round(this);
             switch(currentRound.playerTurn()) {
                 case BLACKJACK:
-                    frame.alert.setText("      Blackjack!      ");
-                    chips.addAll(currentRound.usedChips); chips.addAll(currentRound.usedChips);
+                    frame.alert.setText("      BlackJack!      ");
                     handleWaitError(1500);
-                    continue;
+                    break;
                 case PLAYER_BUST:
                     frame.alert.setText("     Player Bust...     ");
                     handleWaitError(1500);
@@ -121,10 +134,22 @@ public class Game {
                 case PLAYER_WIN:
                 case DEALER_WIN:
                     throw new IllegalArgumentException("Invalid state");
+                case SPLIT_CONTINUE:
+                    continue;
             }
             switch (currentRound.dealerTurn()) {
                 case DEALER_BLACKJACK:
-                    frame.alert.setText("    Dealer Blackjack!    ");
+                    frame.alert.setText("    Dealer BlackJack!    ");
+                    currentRound.insurance = currentRound.insurance != null ? currentRound.insurance : new ArrayList<Chip>();
+                    if (!currentRound.insurance.isEmpty()) {
+                        try {
+                            Thread.sleep(1500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        frame.alert.setText("Insurance paid out!");
+                        chips.addAll(currentRound.insurance); chips.addAll(currentRound.insurance);
+                    }
                     break;
                 case DEALER_BUST:
                     frame.alert.setText("     Dealer Bust!     ");
@@ -138,16 +163,24 @@ public class Game {
                     frame.alert.setText("     Dealer Wins     ");
                     break;
                 case TIE:
-                    frame.alert.setText("           Tie!           ");
+                    frame.alert.setText("           Push           ");
                     chips.addAll(currentRound.usedChips);
                     break;
                 case BLACKJACK:
+                    chips.addAll(currentRound.usedChips); chips.addAll(currentRound.usedChips);
+                    ArrayList<Chip> blackjackHalf = bet(Math.round((currentRound.wager/2)/10)*10, null);
+                    chips.addAll(blackjackHalf); chips.addAll(blackjackHalf);
+                    break;
                 case PLAYER_BUST:
                 case DEALER_TURN:
+                case SPLIT_CONTINUE:
                     throw new IllegalArgumentException("Invalid state");
             }
             handleWaitError(2500);
         }
+        frame.alert.setText("  Game Over...  ");
+        handleWaitError(2000);
+        frame.frame.dispatchEvent(new WindowEvent(frame.frame, WindowEvent.WINDOW_CLOSING));
     }
 
     private void concatChips() {
@@ -202,11 +235,13 @@ public class Game {
                 case DEALER_BUST:
                 case PLAYER_WIN:
                 case DEALER_WIN:
+                case SPLIT_CONTINUE:
                     throw new IllegalArgumentException("Invalid state");
             }
             switch (currentRound.dealerTurn()) {
                 case DEALER_BLACKJACK:
                     System.out.println("\nDealer Blackjack!");
+                    
                     break;
                 case DEALER_BUST:
                     System.out.println("\nDealer Bust!");
@@ -226,6 +261,7 @@ public class Game {
                 case BLACKJACK:
                 case PLAYER_BUST:
                 case DEALER_TURN:
+                case SPLIT_CONTINUE:
                     throw new IllegalArgumentException("Invalid state");
             }
             handleWaitError(4500);
