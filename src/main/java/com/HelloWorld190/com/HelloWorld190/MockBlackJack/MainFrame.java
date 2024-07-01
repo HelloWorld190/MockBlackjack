@@ -154,7 +154,7 @@ public class MainFrame {
 
         wagerPanel = new JPanel();
         wagerPanel.setBackground(darkGreen);
-        wagerPanel.setLayout(new GridLayout(5, 5));
+        wagerPanel.setLayout(new GridLayout(3, 5));
         setWager("0");
         // for (int i = 0; i < 9; i++) {
         //     wagerPanel.add(new JLabel(/*new ImageIcon("com/ConsoleBlackJack/images/Chip.png")*/));
@@ -360,7 +360,6 @@ public class MainFrame {
         c.gridy = 0;
         button.addActionListener(e -> {
             synchronized (Round.o) {
-                System.out.println("WINDOWS ACTIVATED");
                 Round.o.notify();
             }
         });
@@ -368,7 +367,6 @@ public class MainFrame {
         inputField.getActionMap().put("pressed", new javax.swing.AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                System.out.println("ENTER PRESSED");
                 button.doClick();
             }
         });

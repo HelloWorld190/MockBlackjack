@@ -71,6 +71,7 @@ public class Game {
                 usedChips.add(chips.get(i));
                 amount -= chips.get(i).getValue();
                 chips.remove(i);
+                i--;
             }
         }
         
@@ -190,18 +191,21 @@ public class Game {
                 chips.remove(Chip.TEN);
             }
             chips.add(Chip.FIFTY);
+            concatChips();
         }
         while (Collections.frequency(chips, Chip.FIFTY) >= 2) {
             for (int i = 0; i < 2; i++) {
                 chips.remove(Chip.FIFTY);
             }
             chips.add(Chip.HUNDRED);
+            concatChips();
         }
         while (Collections.frequency(chips, Chip.HUNDRED) >= 5) {
             for (int i = 0; i < 5; i++) {
                 chips.remove(Chip.HUNDRED);
             }
             chips.add(Chip.FIVE_HUNDRED);
+            concatChips();
         }
         while (Collections.frequency(chips, Chip.FIVE_HUNDRED) >= 2) {
             for (int i = 0; i < 2; i++) {
