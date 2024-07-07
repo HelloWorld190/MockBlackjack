@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import javax.swing.KeyStroke;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+
 import jaco.mp3.player.MP3Player;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -456,6 +458,8 @@ public class MainFrame {
     }
     public void setWageredChips(ArrayList<Chip> chips) {
         wagerPanel.removeAll();
+        Collections.sort(chips, Comparator.comparing(Chip::getValue));
+        Collections.reverse(chips);
         for (Chip chip : chips) {
             wagerPanel.add(new JLabel(new ImageIcon(new ImageIcon(getClass().getResource("resources/images/Chips/"+chip.toString()+".png")).getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT))));
         }
